@@ -65,24 +65,24 @@
             var checkImg = function() {
 				console.log("checking image...");
                 $.ajax({
-                    url:"./image.jpg",
+                    url:"images/image.jpg",
                     type:'HEAD',
                     error: function() {
                         $.ajax({
-                            url:"image.png",
+                            url:"images/image.png",
                             type:'HEAD',
                             error: function() {
                                 img = "";
                             },
                             success: function() {
-                                img = "image.png";
+                                img = "images/image.png";
                                 console.log("png");
                                 set_image(img);
                             }
                         });
                     },
                     success: function() {
-                        img = "image.jpg";
+                        img = "images/image.jpg";
                         console.log("jpg");
                         set_image(img);
                     }
