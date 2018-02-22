@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <meta http-equiv="Expires" content="Mon, 26 Jul 1997 05:00:00 GMT">
+        <meta http-equiv="Pragma" content="no-cache">
+
+        <link rel="stylesheet" href="style.css">
+		<script src="jquery.min.js"></script>
+        <script>
+            var hash = 0;
+            var last_hash = 0;
+            $(function() {
+
+            String.prototype.hashCode = function() {
+              var hash = 0, i, chr;
+              if (this.length === 0) return hash;
+              for (i = 0; i < this.length; i++) {
+                chr   = this.charCodeAt(i);
+                hash  = ((hash << 5) - hash) + chr;
+                hash |= 0; // Convert to 32bit integer
+              }
+              return hash;
+            };
+
+
+            function set_image(img) {
+                /*$('body').css('background', 'url(' + img + ') fill');*/
+
+                d = new Date();
+
+                // force load image
+                var $img_whoop = $('<img>', { src: img + '?' + d.getTime() });
+                $img_whoop.load(function() {
+                    if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
+                        // silently ignore
+                    } else {
+                        // create a canvas object
+                        var canvas = document.createElement("canvas");
+                        canvas.width = this.width;
+                        canvas.height = this.height;
+                        // copy image contents to canvas
+                        var ctx = canvas.getContext("2d");
+                        ctx.drawImage(this, 0, 0);
+                        // get data from canvas object
+                        var data = canvas.toDataURL("image/png");
+                        console.log(data.hashCode());
+                        hash = data.hashCode();
+                        // set results
+                        //$('#result_image').text('').append(canvas);
+                    }
+                });
+                /*$('<img src"' + img + '">').load(function() {
+
+
+
+                });*/
+
+                if (hash != last_hash) {
+                    $('body').css('opacity', '0');
+                    $('body').css('background-image', 'url(' + img + '?' + d.getTime() + ')');
+                    $('body').css('opacity', '1');
+                    last_hash = hash;
+                }
+            }
+
+            var checkImg = function() {
+				console.log("checking image...");
+                $.ajax({
+                    url:"./image.jpg",
+                    type:'HEAD',
+                    error: function() {
+                        $.ajax({
+                            url:"image.png",
+                            type:'HEAD',
+                            error: function() {
+                                img = "";
+                            },
+                            success: function() {
+                                img = "image.png";
+                                console.log("png");
+                                set_image(img);
+                            }
+                        });
+                    },
+                    success: function() {
+                        img = "image.jpg";
+                        console.log("jpg");
+                        set_image(img);
+                    }
+                });
+            };
+
+			setInterval(checkImg, 1000);
+
+            });
+        </script>
+    </head>
+    <body>
+        <div id="img"></div>
+    </body>
+</html>
